@@ -1,6 +1,6 @@
 extensions [palette]
 turtles-own [energy]
-patches-own [density]
+patches-own [density fusion]
 
 to setup ;setup button
   clear-all
@@ -8,10 +8,10 @@ to setup ;setup button
   create-turtles num-particles [ ;slider to set the  number of agents in the model
     setxy random-xcor random-ycor
 
-    let R random 256
-    let G random 256
-    let B random 256
-    set color (list R G B )
+  ;  let R random 256
+   ; let G random 256
+    ;let B random 256
+    ;set color (list R G B )
     hide-turtle
 
   ]
@@ -26,8 +26,8 @@ to go ;go button
 
   ask turtles [
 
-    let my-color [color] of self
-    set density get-color-value my-color
+
+    set density random 256
      ; set the level of density as the radomized alpha value for each agent
 
      let max-density-neighbor nobody ;inigialize max-density of neighbors
@@ -44,7 +44,7 @@ to go ;go button
       ; rt random 180
 
        ;show density
-        ; set density (density + ( max-density - density ) * .1 )
+        set density (density + ( max-density - density ) * .1 )
 
      ]]
     ; make the turtles move around a bit so they eventually
@@ -52,15 +52,16 @@ to go ;go button
      [
       facexy 0 0
         rt random 160
-      fd .1
+      fd .5
   ]
-    set energy increase-energy
+    ;set energy increase-energy
 
 
   ]
 
 
 recolor-patches
+
   ;increase-energy
 
 
@@ -80,7 +81,7 @@ end
 to recolor-patches
 
   ask patches [set pcolor density]
-  diffuse density random-float .5
+  diffuse density random-float 1.0
 
   ;[ ask patches in-radius (density ) [set pcolor density]]
 
@@ -88,16 +89,30 @@ to recolor-patches
     set energy increase-energy
       facexy  0 0
     rt random 180
-    fd .1
-    ask patches in-radius (energy * .05)
+    fd 1
+    ask patches in-radius (energy * .1)
                   [ set pcolor black + 1]
-  set density pcolor]
-
+   ]
+show-core
 tick
 end
 
+to show-core
+  ask turtles[
+    if distancexy 0 0 <= (world-width * .1 ) [
+      ask patches in-radius (energy * .005)
+    [set pcolor 49]
+  ]]
+ ; set fusion count turtles with [distancexy 0 0 < (world-width * .2) and pcolor = black + 1]
+  ;if fusion > ( num-particles * .5) [ set pcolor 79]
+end
 
-
+to supernova
+    ask patches[
+  set fusion count turtles with [distancexy 0 0 < (world-width * .2) and pcolor = black + 1]
+    if fusion > ( num-particles * .9 ) [ sprout 5 [set pcolor 79]]]
+  tick
+end
 to-report get-color-value [my-color]
   let r1 item 0 my-color  ; the agents color
   let g1 item 1 my-color
@@ -141,8 +156,8 @@ SLIDER
 num-particles
 num-particles
 100
-500
-236.0
+1000
+550.0
 1
 1
 NIL
@@ -198,7 +213,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot count turtles with [pcolor = black + 1]"
+"default" 1.0 0 -16777216 true "" " plot count turtles with [distancexy 0 0 < (world-width * .25) and pcolor = black + 1]"
 
 @#$#@#$#@
 ## WHAT IS IT?
